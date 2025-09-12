@@ -73,10 +73,10 @@ export default function LandingPage() {
             </div>
             
             <div className="flex items-center gap-4">
-              <Link to="/dashboard">
+              <Link to="/auth">
                 <Button variant="ghost">Sign In</Button>
               </Link>
-              <Link to="/dashboard">
+              <Link to="/auth">
                 <Button className="bg-gradient-hero hover:opacity-90 text-white shadow-soft">
                   Get Started
                 </Button>
@@ -106,7 +106,7 @@ export default function LandingPage() {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/dashboard">
+                <Link to="/auth">
                   <Button size="lg" className="bg-gradient-hero hover:opacity-90 text-white shadow-soft text-lg px-8 py-6">
                     Start Learning & Securing
                   </Button>
@@ -220,7 +220,7 @@ export default function LandingPage() {
             while keeping their passwords secure.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/dashboard">
+            <Link to="/auth">
               <Button size="lg" className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6">
                 Start Free Today
               </Button>
