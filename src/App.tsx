@@ -14,7 +14,9 @@ import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import PasswordSecurityCheck from "./pages/PasswordSecurityCheck";
+import CybersecurityGamesPage from "./pages/CybersecurityGamesPage";
+import CybersecurityChatbot from "./pages/CybersecurityChatbot";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -27,11 +29,86 @@ const App = () => (
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
-            <Route path="/generator" element={<ProtectedRoute><Layout><Generator /></Layout></ProtectedRoute>} />
-            <Route path="/phishing-check" element={<ProtectedRoute><Layout><PhishingCheck /></Layout></ProtectedRoute>} />
-            <Route path="/community" element={<ProtectedRoute><Layout><Community /></Layout></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Dashboard />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/generator"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Generator />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/phishing-check"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <PhishingCheck />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/community"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Community />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Profile />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/password-check"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <PasswordSecurityCheck />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cyber-games"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <CybersecurityGamesPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cyber-mentor"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <CybersecurityChatbot />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
