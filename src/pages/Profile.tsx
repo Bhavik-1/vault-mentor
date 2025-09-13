@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import TwoFactorSetup from '@/components/auth/TwoFactorSetup';
+
 import { User, LogOut, Settings } from 'lucide-react';
 
 const Profile: React.FC = () => {
@@ -137,8 +137,6 @@ const Profile: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Two-Factor Authentication */}
-        <TwoFactorSetup />
 
         {/* Account Actions */}
         <Card>
