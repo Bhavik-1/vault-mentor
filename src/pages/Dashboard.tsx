@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Eye, EyeOff, Copy, Edit, Trash2, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { PasswordVerificationDialog } from "@/components/auth/PasswordVerificationDialog";
 
 interface PasswordEntry {
   id: string;
@@ -59,6 +60,8 @@ export default function Dashboard() {
   const [passwords, setPasswords] = useState<PasswordEntry[]>(mockPasswords); 
   const [searchTerm, setSearchTerm] = useState("");
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
+  const [pendingPasswordId, setPendingPasswordId] = useState<string | null>(null);
+  const [showVerificationDialog, setShowVerificationDialog] = useState(false);
 
   const filteredPasswords = passwords.filter(
     (p) =>
@@ -69,11 +72,23 @@ export default function Dashboard() {
   const togglePasswordVisibility = (id: string) => {
     const newVisible = new Set(visiblePasswords);
     if (newVisible.has(id)) {
+      // If password is visible, hide it without verification
       newVisible.delete(id);
+      setVisiblePasswords(newVisible);
     } else {
-      newVisible.add(id);
+      // If password is hidden, require verification to show it
+      setPendingPasswordId(id);
+      setShowVerificationDialog(true);
     }
-    setVisiblePasswords(newVisible);
+  };
+
+  const handlePasswordVerified = () => {
+    if (pendingPasswordId) {
+      const newVisible = new Set(visiblePasswords);
+      newVisible.add(pendingPasswordId);
+      setVisiblePasswords(newVisible);
+      setPendingPasswordId(null);
+    }
   };
 
   const copyToClipboard = (text: string, type: string) => {
@@ -288,6 +303,15 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       )}
+
+      <PasswordVerificationDialog
+        isOpen={showVerificationDialog}
+        onClose={() => {
+          setShowVerificationDialog(false);
+          setPendingPasswordId(null);
+        }}
+        onVerified={handlePasswordVerified}
+      />
     </div>
   );
 }
