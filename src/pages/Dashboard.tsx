@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,62 +6,77 @@ import { Input } from "@/components/ui/input";
 import { Plus, Search, Eye, EyeOff, Copy, Edit, Trash2, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { PasswordVerificationDialog } from "@/components/auth/PasswordVerificationDialog";
+import { AddPasswordDialog } from "@/components/password/AddPasswordDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface PasswordEntry {
   id: string;
   service: string;
   username: string;
   password: string;
-  lastUpdated: Date;
+  created_at: string;
+  updated_at: string;
   strength: "weak" | "medium" | "strong";
   breached: boolean;
 }
 
-const mockPasswords: PasswordEntry[] = [
-  {
-    id: "1",
-    service: "Gmail",
-    username: "student@university.edu",
-    password: "MySecurePassword123!",
-    lastUpdated: new Date(2024, 0, 15),
-    strength: "strong",
-    breached: false,
-  },
-  {
-    id: "2", 
-    service: "Canvas LMS",
-    username: "student123",
-    password: "password123",
-    lastUpdated: new Date(2023, 11, 1),
-    strength: "weak",
-    breached: true,
-  },
-  {
-    id: "3",
-    service: "University Portal",
-    username: "john.doe",
-    password: "UniPortal2024#",
-    lastUpdated: new Date(2024, 1, 10),
-    strength: "medium",
-    breached: false,
-  },
-  {
-    id: "4",
-    service: "Netflix",
-    username: "student@university.edu",
-    password: "StreamingLife456$",
-    lastUpdated: new Date(2024, 2, 5),
-    strength: "strong",
-    breached: false,
-  },
-];
-
 export default function Dashboard() {
-  const [passwords, setPasswords] = useState<PasswordEntry[]>(mockPasswords); 
+  const [passwords, setPasswords] = useState<PasswordEntry[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
   const [pendingPasswordId, setPendingPasswordId] = useState<string | null>(null);
   const [showVerificationDialog, setShowVerificationDialog] = useState(false);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
+  const { user } = useAuth();
+
+  // Load passwords from database
+  const loadPasswords = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('passwords')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false });
+
+      if (error) {
+        toast({
+          title: "Error Loading Passwords",
+          description: "Failed to load your passwords. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        // Transform database format to component format
+        const transformedPasswords: PasswordEntry[] = data.map(password => ({
+          id: password.id,
+          service: password.service,
+          username: password.username,
+          password: password.encrypted_password,
+          created_at: password.created_at,
+          updated_at: password.updated_at,
+          strength: password.strength as "weak" | "medium" | "strong",
+          breached: password.breached
+        }));
+        setPasswords(transformedPasswords);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while loading passwords.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPasswords();
+  }, [user?.id]);
 
   const filteredPasswords = passwords.filter(
     (p) =>
@@ -112,7 +127,8 @@ export default function Dashboard() {
     }
   };
 
-  const getPasswordAge = (date: Date) => {
+  const getPasswordAge = (dateString: string) => {
+    const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -131,7 +147,10 @@ export default function Dashboard() {
           <h1 className="text-3xl font-bold">Password Vault</h1>
           <p className="text-muted-foreground">Manage your secure passwords</p>
         </div>
-        <Button className="bg-gradient-hero hover:opacity-90 text-white shadow-soft">
+        <Button 
+          onClick={() => setShowAddDialog(true)}
+          className="bg-gradient-hero hover:opacity-90 text-white shadow-soft"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Password
         </Button>
@@ -268,9 +287,9 @@ export default function Dashboard() {
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      Updated {getPasswordAge(password.lastUpdated)} days ago
+                      Updated {getPasswordAge(password.updated_at)} days ago
                     </div>
-                    {getPasswordAge(password.lastUpdated) > 90 && (
+                    {getPasswordAge(password.updated_at) > 90 && (
                       <Badge variant="outline" className="text-xs">
                         Consider updating
                       </Badge>
@@ -311,6 +330,12 @@ export default function Dashboard() {
           setPendingPasswordId(null);
         }}
         onVerified={handlePasswordVerified}
+      />
+
+      <AddPasswordDialog
+        isOpen={showAddDialog}
+        onClose={() => setShowAddDialog(false)}
+        onPasswordAdded={loadPasswords}
       />
     </div>
   );

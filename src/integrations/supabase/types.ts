@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      passwords: {
+        Row: {
+          breached: boolean
+          created_at: string
+          encrypted_password: string
+          id: string
+          service: string
+          strength: string
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          breached?: boolean
+          created_at?: string
+          encrypted_password: string
+          id?: string
+          service: string
+          strength: string
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          breached?: boolean
+          created_at?: string
+          encrypted_password?: string
+          id?: string
+          service?: string
+          strength?: string
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
